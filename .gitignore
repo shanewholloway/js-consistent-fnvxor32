@@ -1,0 +1,6 @@
+syntax: glob
+umd/
+cjs/
+esm/
+package-lock.json
+yarn.lock

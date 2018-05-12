@@ -1,0 +1,12 @@
+const testModule = require('..')
+
+import basics from './test-basics.jsy'
+import top2 from './test-top2.jsy'
+
+const tap = require('tap-lite-tester')
+tap.start()
+
+basics @ tap, testModule
+top2 @ tap, testModule
+
+tap.finish()

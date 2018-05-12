@@ -1,0 +1,70 @@
+const {default: fnvxor32} = require('..')
+
+const {createHash} = require('crypto')
+
+function take(count=1, iter) ::
+  return null == iter ? take : take(iter)
+
+  function * take(iter) ::
+    let i = 0
+    if i >= count :: return
+    for const v of iter ::
+      yield v
+      if ++i >= count :: return
+
+function * sample_keys(tip) ::
+  while 1 ::
+    tip = createHash('sha256').update(tip).digest('hex')
+    yield tip
+
+
+const nodes = Array.from @ take @ 40, sample_keys @ 'nodes'
+const max_nodes = 20
+const keys = Array.from @ take @ 1000, sample_keys @ 'keys'
+
+const byIterNodes = {}
+const byKeyIter = {}
+
+for let i=1; i<=nodes.length; i++ ::
+  const lst = nodes.slice @ Math.max(0, i - max_nodes), i
+  byIterNodes[i] = lst
+
+  const byNode = {}, byKey = {}
+  let changedKeys = new Set(), unchangedKeys = new Set()
+
+  for const k of keys ::
+    const sel = fnvxor32(k, lst)
+    byNode[sel] = [k].concat @ byNode[sel] || []
+
+    const byKey = byKeyIter[k] || (byKeyIter[k] = [])
+    if sel !== byKey[0] ::
+      byKey.unshift(sel)
+      changedKeys.add(k)
+    else
+      unchangedKeys.add(k)
+
+  if 1 ::
+    const union = new Set @ [].concat @ byIterNodes[i-1] || [], byIterNodes[i]
+    const prevNodes = new Set @ byIterNodes[i-1] || []
+    const intersection = lst.filter @ e => prevNodes.has(e)
+    const count = union.size - intersection.length
+
+    changedKeys = changedKeys.size/keys.length
+    unchangedKeys = unchangedKeys.size/keys.length
+    const e_delta = 1. - ((lst.length - count) / lst.length)
+    const changeDelta = (changedKeys - e_delta)
+
+    const e_avg = keys.length / lst.length
+    const keysPerNode = Object.values(byNode)
+      .map @ l => l.length/e_avg - 1
+      .sort @ (a,b) => b-a
+      .map @ v => Math.round @ v * 100
+      .join @ ' '
+
+    const sz_info = @[]
+      `bins: ${lst.length} (${count})`.padEnd(13)
+      `changed: ${changedKeys.toFixed(3)} (${e_delta.toFixed(3)})`.padEnd(23)
+      `delta: ${changeDelta.toFixed(3)}`.padEnd(15)
+      `hist: ${keysPerNode}`
+    console.log @ sz_info.join(' ')
+

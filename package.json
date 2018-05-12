@@ -1,0 +1,44 @@
+{
+  "name": "consistent-fnvxor32",
+  "version": "0.1.0",
+  "description": "Consistent hashing using FNV32 and Xorshift 32",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/shanewholloway/js-consistent-fnvxor32#readme",
+  "bugs": {
+    "url": "https://github.com/shanewholloway/js-consistent-fnvxor32/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shanewholloway/js-consistent-fnvxor32.git"
+  },
+  "keywords": [
+    "hashing",
+    "hash ring",
+    "consistent hash",
+    "consistent hash ring",
+    "sharding"
+  ],
+  "files": [
+    "cjs/",
+    "esm/",
+    "umd/"
+  ],
+  "main": "cjs/fnvxor32.js",
+  "module": "esm/fnvxor32.mjs",
+  "browser": "umd/fnvxor32.mjs",
+  "devDependencies": {
+    "jsy-transpile": "0.0.8",
+    "rollup": "^0.58.2",
+    "rollup-plugin-jsy-lite": "0.0.1",
+    "tap-lite-tester": "^0.5.2"
+  },
+  "scripts": {
+    "clean": "rm -rf ./dist/*",
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "explore": "node ./cjs/test-explore.js",
+    "pretest": "npm -s run build",
+    "test": "node ./cjs/test-all.js"
+  }
+}

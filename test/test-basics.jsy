@@ -1,0 +1,77 @@
+const assert = require('assert')
+
+export default function (tap, {default: fnvxor32}) ::
+  function expectMapping(a0, a1) ::
+    const lst = Array.isArray(a0) ? a0 : a1
+    const mapping = Array.isArray(a0) ? a1 : a0
+
+    const actual = {}
+    for const key of Object.keys(mapping) ::
+      actual[key] = fnvxor32(key, lst)
+
+    try ::
+      assert.deepEqual @ actual, mapping
+    catch err ::
+      console.log @ JSON.stringify(actual, null, 2)
+      throw err
+
+
+  tap.test @ `empty`, @=> ::
+    assert.strictEqual @ undefined, fnvxor32('key', [])
+    
+  tap.test @ `one`, @=> ::
+    const lst = @[] 'one'
+    expectMapping @ lst, @{}
+      'key': 'one'
+
+  tap.test @ `one two`, @=> ::
+    const ans = {
+      "aaaaaa": "two",
+      "bbbbbb": "one",
+      "cccccc": "two",
+      "dddddd": "one",
+      "eeeeee": "one",
+      "ffffff": "two",
+      "gggggg": "one",
+      "hhhhhh": "one",
+      "iiiiii": "two",
+    }
+
+    expectMapping @ ans, @[] 'one', 'two'
+    expectMapping @ ans, @[] 'two', 'one'
+    expectMapping @ ans, @[] 'two', 'one', 'two'
+    expectMapping @ ans, @[] 'two', 'one', 'one', 'one', 'two'
+
+  tap.test @ `one two three`, @=> ::
+    const ans = {
+      "aaaaaa": "two",
+      "bbbbbb": "one",
+      "cccccc": "three",
+      "dddddd": "one",
+      "eeeeee": "three",
+      "ffffff": "two",
+      "gggggg": "one",
+      "hhhhhh": "one",
+      "iiiiii": "three"
+    }
+
+    expectMapping @ ans, @[] 'one', 'two', 'three'
+    expectMapping @ ans, @[] 'two', 'one', 'three'
+    expectMapping @ ans, @[] 'three', 'two', 'one', 'two'
+    expectMapping @ ans, @[] 'two', 'three', 'one', 'one', 'one', 'two'
+
+  tap.test @ `one two three four`, @=> ::
+    const ans = {
+      "aaaaaa": "two",
+      "bbbbbb": "one",
+      "cccccc": "four",
+      "dddddd": "one",
+      "eeeeee": "four",
+      "ffffff": "four",
+      "gggggg": "one",
+      "hhhhhh": "one",
+      "iiiiii": "three"
+    }
+
+    expectMapping @ ans, @[] 'one', 'two', 'three', 'four'
+

@@ -1,0 +1,70 @@
+export {select_top_n} from './select_top_n.jsy'
+
+function select_min(h_tip, tip, h_sel, sel) ::
+  return h_tip < h_sel ? tip : undefined
+
+
+
+export const fnvxor32 = create_fnvxor32({})
+export default fnvxor32
+
+export function create_fnvxor32({depth, selector, cache}) ::
+  // Consistently map each string to [0, 2**32 - 1] by using a hashing scheme
+  // with good random distribution properties (FNV 32 and XORShift 32). Return
+  // the lowest by mapped value.
+
+  const c_fnv32 = cache ? cached_fnv32 : hash_fnv32
+
+  if undefined === depth :: depth = 4
+  else if 256 < depth || 1 > depth ::
+    throw new TypeError @ `Expected 1 <= depth <= 256`
+
+  if null == selector ::
+    selector = select_min
+
+  return fnvxor32
+
+
+  function fnvxor32(key, iterable) ::
+    const hk = 'string' === typeof key
+      ? hash_fnv32(key) : key|0
+
+    let sel, h_sel = Infinity
+    for const tip of iterable ::
+      let h_tip = hk ^ c_fnv32(tip, cache)
+      for let i=0; i<depth; i++ ::
+        h_tip = xor32(h_tip)
+
+        const ans = selector(h_tip, tip, h_sel, sel)
+        if undefined !== ans ::
+          h_sel = h_tip
+          sel = ans
+
+    if selector.result ::
+      sel = selector.result(sel)
+    return sel
+
+
+
+export function cached_fnv32(sz, cache) ::
+  let h = cache[sz]
+  if undefined === h ::
+    cache[sz] = h = hash_fnv32(sz)
+  return h
+
+export function hash_fnv32(sz) ::
+  // FNV32, from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+  let h = 0x811C9DC5 // fnv-1a 32 bit initial value
+  for let i=0; i < sz.length; i++ ::
+    h ^= sz.charCodeAt(i)
+    h += (h << 24) + (h << 8) + (h << 7) + (h << 4) + (h << 1)
+  return h
+
+export function xor32(h) ::
+  // XOR Shift 32, from https://en.wikipedia.org/wiki/Xorshift
+  // from Marsaglia, George (July 2003). "Xorshift RNGs". Journal of Statistical Software. 8 (14). doi:10.18637/jss.v008.i14.
+  h ^= h << 13
+  h ^= h >>> 17
+  h ^= h << 5
+  return h
+

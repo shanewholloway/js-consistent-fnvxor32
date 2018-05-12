@@ -1,0 +1,36 @@
+export default function select_top_n(n) ::
+export function select_top_n(n) ::
+  if 1 >= n || 10 < n ::
+    throw new TypeError @ `select_top_n not suitable for ${n}`
+  n = n|0
+
+  select_top_n.result = sel => (sel || [])
+    .sort @ (a,b) => a[0] - b[0]
+    .map @ e => e[1]
+  return select_top_n
+
+  function select_top_n(h_tip, tip, h_sel, sel) ::
+    if undefined === sel ::
+      sel = []
+
+    let idx = sel.findIndex @ e => tip === e[1]
+    if -1 !== idx ::
+      if h_tip >= sel[idx][0] :: return // same answer but not better h_tip
+
+    else if sel.length < n ::
+      idx = sel.length // append slot
+
+    else :: // outperform existing
+      let h_max = sel[0][0]
+      for let i = 0; i<sel.length; i++ ::
+        const hi = sel[i][0]
+        if h_tip < hi && hi >= h_max ::
+          h_max = hi
+          idx = i
+
+      if -1 === idx :: return
+
+    if 0 <= idx && idx < n ::
+      sel[idx] = @[] h_tip, tip
+      return sel
+
