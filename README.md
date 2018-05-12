@@ -2,6 +2,14 @@
 
 Consistent hashing using [FNV32-a1][FNV32] and [Xorshift 32][XOR32]
 
+Keys distribution across nodes should approach a uniform statstical distribution.
+
+The majority of key mappings should remain stable and unchanged when nodes are
+added or removed.  When you add or remove `k` of `n` nodes, the mapping for any
+given key should change with probability `1 - k/n`.
+
+The resulting mapping should be deterministic.
+
 
 ### Single target example
 
