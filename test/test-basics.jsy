@@ -17,7 +17,7 @@ export default function (tap, {default: fnvxor32}) ::
 
 
   tap.test @ `empty`, @=> ::
-    assert.strictEqual @ undefined, fnvxor32('key', [])
+    assert.strictEqual @ null, fnvxor32('key', [])
     
   tap.test @ `one`, @=> ::
     const lst = @[] 'one'

@@ -10,7 +10,7 @@ export function select_top_n(n) ::
   return select_top_n
 
   function select_top_n(h_tip, tip, h_sel, sel) ::
-    if undefined === sel :: sel = []
+    if null === sel :: sel = []
 
     let idx = -1, h_max = -Infinity
     for let i = 0; i<sel.length; i++ ::
@@ -21,7 +21,7 @@ export function select_top_n(n) ::
           idx = i; h_max = null
           break
 
-        else return // same value but worse h_tip
+        else return null // same value but worse h_tip
 
       if h_tip < h && h >= h_max ::
         // outperform existing; look for the max of mins
@@ -30,7 +30,7 @@ export function select_top_n(n) ::
 
     if sel.length >= n ::
       if -1 === idx ::
-        return // full
+        return null // full
       // replacing existing
     else if h_max === null ::
       // not full, but replacing own entry

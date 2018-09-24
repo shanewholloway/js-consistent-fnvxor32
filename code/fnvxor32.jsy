@@ -1,7 +1,7 @@
 export {select_top_n} from './select_top_n.jsy'
 
 function select_min(h_tip, tip, h_sel, sel) ::
-  return h_tip < h_sel ? tip : undefined
+  return h_tip < h_sel ? tip : null
 
 
 
@@ -29,18 +29,21 @@ export function create_fnvxor32({depth, selector, cache}) ::
     const hk = 'string' === typeof key
       ? hash_fnv32(key) : key|0
 
-    let sel, h_sel = Infinity
+    let sel = null, h_sel = Infinity
     for const tip of iterable ::
       let h_tip = hk ^ c_fnv32(tip, cache)
       for let i=0; i<depth; i++ ::
+        // generate "depth" alternatives
         h_tip = xor32(h_tip)
 
+        // use selector to find and keep the winner
         const ans = selector(h_tip, tip, h_sel, sel)
-        if undefined !== ans ::
+        if null !== ans ::
           h_sel = h_tip
           sel = ans
 
     if selector.result ::
+      // post-transform the result
       sel = selector.result(sel)
     return sel
 
