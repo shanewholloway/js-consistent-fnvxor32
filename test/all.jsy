@@ -2,11 +2,15 @@ const testModule = require('..')
 
 import basics from './test-basics.jsy'
 import top2 from './test-top2.jsy'
+import weighted from './test-weighted.jsy'
+import sel_all from './test-sel-all.jsy'
 
 const tap = require('tap-lite-tester')
 tap.start()
 
-basics @ tap, testModule
-top2 @ tap, testModule
+//basics @ tap, testModule
+//top2 @ tap, testModule
+weighted @ tap, testModule
+//sel_all @ tap, testModule
 
 tap.finish()

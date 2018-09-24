@@ -1,0 +1,79 @@
+const assert = require('assert')
+
+export default function (tap, {create_fnvxor32, select_all}) ::
+  const selector = select_all()
+  const {result} = selector
+  selector.result = sel => result(sel).join(' ')
+
+  const fnvxor32 = create_fnvxor32 @: selector
+
+  function expectMapping(a0, a1) ::
+    const lst = Array.isArray(a0) ? a0 : a1
+    const mapping = Array.isArray(a0) ? a1 : a0
+
+    const actual = {}
+    for const key of Object.keys(mapping) ::
+      actual[key] = fnvxor32 @ key, lst
+
+    try ::
+      assert.deepEqual @ actual, mapping
+    catch err ::
+      console.log()
+      console.log @ lst
+      console.log @ JSON.stringify(actual, null, 2)
+      console.log()
+      //throw err
+
+
+  tap.test @ `select all :: empty`, @=> ::
+    expectMapping @ [], @{} 'key': ''
+    
+  tap.test @ `select all :: one`, @=> ::
+    const lst = @[] 'one'
+    expectMapping @ lst, @{} 'key': 'one one one one'
+
+  tap.test @ `select all :: one two`, @=> ::
+    const ans = @{}
+      "aaaaaa": "two two one one one one two two",
+      "bbbbbb": "one one two two two two one one",
+      "cccccc": "two two one two one one one two",
+      "dddddd": "one two one one one two two two",
+      "eeeeee": "one one one two two two two one",
+      "ffffff": "two two one two one two one one",
+      "gggggg": "one two one one one two two two",
+      "hhhhhh": "one one two two two two one one",
+      "iiiiii": "two two one one one one two two"
+
+    expectMapping @ ans, @[] 'one', 'two'
+    expectMapping @ ans, @[] 'two', 'one'
+
+  tap.test @ `select all :: one two three`, @=> ::
+    const ans = @{}
+      "aaaaaa": "two two one three one one three three one three two two",
+      "bbbbbb": "one one two three two two three two three one one three",
+      "cccccc": "three two two one two three one one one three two three",
+      "dddddd": "one two one three three one one three two three two two",
+      "eeeeee": "three one one one three two three three two two two one",
+      "ffffff": "two two one three three two one two one one three three",
+      "gggggg": "one two three three one one one two two two three three",
+      "hhhhhh": "one three one two two two three two one one three three",
+      "iiiiii": "three two two one one one one three two three two three"
+
+    expectMapping @ ans, @[] 'one', 'two', 'three'
+    expectMapping @ ans, @[] 'two', 'one', 'three'
+
+  tap.test @ `select all :: one two three four`, @=> ::
+    const ans = @{}
+      "aaaaaa": "two two one three one one three three one four three four two four four two",
+      "bbbbbb": "one one two three two two three two four four four four three one one three",
+      "cccccc": "four four three two two four one two three one one one four three two three",
+      "dddddd": "one two one three three one four one three two three two four four four two",
+      "eeeeee": "four three one one one three two four three three two two four two one four",
+      "ffffff": "four two two one three three two four four one two one four one three three",
+      "gggggg": "one two three three four one one one two two four two three three four four",
+      "hhhhhh": "one four three one two four two four two three four two one one three three",
+      "iiiiii": "three four two two four one one one four one three two four three two three"
+
+    expectMapping @ ans, @[] 'one', 'two', 'three', 'four'
+    expectMapping @ ans, @[] 'two', 'four', 'three', 'one'
+

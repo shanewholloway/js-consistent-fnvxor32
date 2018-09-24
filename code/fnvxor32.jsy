@@ -1,7 +1,10 @@
-export {select_top_n} from './select_top_n.jsy'
+export { select_top_n } from './select_top_n.jsy'
+export { select_all } from './select_all.jsy'
 
 function select_min(h_tip, tip, h_sel, sel) ::
-  return h_tip < h_sel ? tip : null
+  return h_tip < h_sel ? tip :
+    h_tip !== h_sel ? null :
+    tip < sel ? tip : null
 
 
 
@@ -9,9 +12,15 @@ export const fnvxor32 = create_fnvxor32({})
 export default fnvxor32
 
 export function create_fnvxor32({depth, selector, cache}) ::
-  // Consistently map each string to [0, 2**32 - 1] by using a hashing scheme
-  // with good random distribution properties (FNV 32 and XORShift 32). Return
-  // the lowest by mapped value.
+  // Binds `fnvxor32` that consistently selects a winning choice from a set of
+  // choices (iterator of strings) for a key.
+
+  // Each choice generates `depth` consistently mapped values in [0, 2**32 - 1]
+  // by using a hashing scheme with good random distribution properties (FNV 32
+  // combined with XORShift 32).
+  
+  // The default selector returns the choice with the lowest mapped value variant.
+  // See `select_top_n()` that retains several
 
   const c_fnv32 = cache ? cached_fnv32 : hash_fnv32
 
@@ -32,7 +41,41 @@ export function create_fnvxor32({depth, selector, cache}) ::
     let sel = null, h_sel = Infinity
     for const tip of iterable ::
       let h_tip = hk ^ c_fnv32(tip, cache)
-      for let i=0; i<depth; i++ ::
+      for let i=depth & 0xff; i>0; i-- ::
+        // generate "depth" alternatives
+        h_tip = xor32(h_tip)
+
+        // use selector to find and keep the winner
+        const ans = selector(h_tip, tip, h_sel, sel)
+        if null !== ans ::
+          h_sel = h_tip
+          sel = ans
+
+    if selector.result ::
+      // post-transform the result
+      sel = selector.result(sel)
+    return sel
+
+
+
+export function create_weighted_fnvxor32({selector, cache}) ::
+  // similar to create_fnvxor32 with depth varying per (iterable) choice
+
+  const c_fnv32 = cache ? cached_fnv32 : hash_fnv32
+  if null == selector ::
+    selector = select_min
+
+  return fnvxor32
+
+
+  function fnvxor32(key, iterable) ::
+    const hk = 'string' === typeof key
+      ? hash_fnv32(key) : key|0
+
+    let sel = null, h_sel = Infinity
+    for const [tip, depth] of iterable ::
+      let h_tip = hk ^ c_fnv32(tip, cache)
+      for let i=depth & 0xff; i>0; i-- ::
         // generate "depth" alternatives
         h_tip = xor32(h_tip)
 

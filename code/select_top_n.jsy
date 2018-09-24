@@ -1,11 +1,11 @@
-export default function select_top_n(n) ::
+export default select_top_n
 export function select_top_n(n) ::
   if 1 >= n || 10 < n ::
     throw new TypeError @ `select_top_n not suitable for ${n}`
   n = n|0
 
   select_top_n.result = sel => (sel || [])
-    .sort @ (a,b) => a[0] - b[0]
+    .sort @ (a, b) => (a[0] - b[0]) || (a[1] <= b[1] ? -1 : 1)
     .map @ e => e[1]
   return select_top_n
 

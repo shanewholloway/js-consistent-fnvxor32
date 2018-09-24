@@ -1,0 +1,13 @@
+export default select_all
+export function select_all() ::
+  select_all.result = sel => (sel || [])
+    .sort @ (a, b) => (a[0] - b[0]) || (a[1] <= b[1] ? -1 : 1)
+    .map @ e => e[1]
+  return select_all
+
+  function select_all(h_tip, tip, h_sel, sel) ::
+    if null === sel :: sel = []
+
+    sel.push @# h_tip, tip
+    return sel
+
