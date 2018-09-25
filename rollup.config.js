@@ -6,7 +6,7 @@ const plugins = [rpi_jsy()]
 const external = []
 
 export default [
-  { input: 'code/fnvxor32.jsy',
+  { input: 'code/index.jsy',
     output: [
       { file: pkg.main, format: 'cjs', exports:'named', sourcemap },
       { file: pkg.browser, format: 'umd', name: 'fnvxor32', exports:'named', sourcemap },

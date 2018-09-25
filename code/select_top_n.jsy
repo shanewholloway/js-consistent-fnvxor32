@@ -1,15 +1,16 @@
+import { as_sorted_selection, as_selection_result } from './select_min.jsy'
+
 export default select_top_n
 export function select_top_n(n) ::
   if 1 >= n || 10 < n ::
     throw new TypeError @ `select_top_n not suitable for ${n}`
   n = n|0
 
-  select_top_n.result = sel => (sel || [])
-    .sort @ (a, b) => (a[0] - b[0]) || (a[1] <= b[1] ? -1 : 1)
-    .map @ e => e[1]
+  select_top_n.finalize = as_sorted_selection
+  select_top_n.result = as_selection_result
   return select_top_n
 
-  function select_top_n(h_tip, tip, h_sel, sel) ::
+  function select_top_n(h_tip, tip, sel) ::
     if null === sel :: sel = []
 
     let idx = -1, h_max = -Infinity

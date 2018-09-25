@@ -1,6 +1,6 @@
 {
   "name": "consistent-fnvxor32",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Consistent hashing using FNV32 and Xorshift 32",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",

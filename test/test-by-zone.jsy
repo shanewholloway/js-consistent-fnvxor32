@@ -1,0 +1,55 @@
+const assert = require('assert')
+
+export default function (tap, {create_fnvxor32, select_by_attr, select_top_n, hash_fnv32}) ::
+  const selector = select_by_attr @
+    /zone-[A-Z]+/ //, select_top_n(3)
+  const {result} = selector
+  //selector.result = sel => JSON.stringify(sel)
+  selector.result = sel => result(sel).join(' ')
+
+  const fnvxor32 = create_fnvxor32 @: selector
+
+  function expectMapping(a0, a1) ::
+    const lst = Array.isArray(a0) ? a0 : a1
+    const mapping = Array.isArray(a0) ? a1 : a0
+
+    const actual = {}
+    for const key of Object.keys(mapping) ::
+      actual[key] = fnvxor32 @ key, lst
+
+    try ::
+      assert.deepEqual @ actual, mapping
+    catch err ::
+      console.log()
+      console.log @ lst
+      console.log @ JSON.stringify(actual, null, 2)
+      console.log()
+      throw err
+
+
+  tap.test @ `by zone`, @=> ::
+    const ans = @{}
+      "aaaaaa": "yyyy-zone-BBB wwxx-zone-AAA zwzw-zone-CCC",
+      "bbbbbb": "wwyy-zone-BBB zzww-zone-CCC xwxw-zone-AAA",
+      "cccccc": "wywy-zone-BBB wzwz-zone-CCC xxww-zone-AAA",
+      "dddddd": "wzwz-zone-CCC xwxw-zone-AAA ywyw-zone-BBB",
+      "eeeeee": "wwzz-zone-CCC wxwx-zone-AAA yyww-zone-BBB",
+      "ffffff": "wwxx-zone-AAA zzww-zone-CCC yyww-zone-BBB",
+      "gggggg": "wwzz-zone-CCC xxxx-zone-AAA ywyw-zone-BBB",
+      "hhhhhh": "zzzz-zone-CCC xxww-zone-AAA yyww-zone-BBB",
+      "iiiiii": "zwzw-zone-CCC wwxx-zone-AAA wwyy-zone-BBB",
+
+    expectMapping @ ans, @[]
+      'xxxx-zone-AAA', 'yyyy-zone-BBB', 'zzzz-zone-CCC',
+      'wwxx-zone-AAA', 'wwyy-zone-BBB', 'wwzz-zone-CCC',
+      'wxwx-zone-AAA', 'wywy-zone-BBB', 'wzwz-zone-CCC',
+      'xwxw-zone-AAA', 'ywyw-zone-BBB', 'zwzw-zone-CCC',
+      'xxww-zone-AAA', 'yyww-zone-BBB', 'zzww-zone-CCC',
+
+    expectMapping @ ans, @[]
+      'wwxx-zone-AAA', 'wwyy-zone-BBB', 'wwzz-zone-CCC',
+      'xxww-zone-AAA', 'yyww-zone-BBB', 'zzww-zone-CCC',
+      'wxwx-zone-AAA', 'wywy-zone-BBB', 'wzwz-zone-CCC',
+      'xxxx-zone-AAA', 'yyyy-zone-BBB', 'zzzz-zone-CCC',
+      'xwxw-zone-AAA', 'ywyw-zone-BBB', 'zwzw-zone-CCC',
+

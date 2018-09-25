@@ -4,13 +4,19 @@ import basics from './test-basics.jsy'
 import top2 from './test-top2.jsy'
 import weighted from './test-weighted.jsy'
 import sel_all from './test-sel-all.jsy'
+import by_zone from './test-by-zone.jsy'
 
 const tap = require('tap-lite-tester')
 tap.start()
 
-basics @ tap, testModule
-top2 @ tap, testModule
-weighted @ tap, testModule
-sel_all @ tap, testModule
+if 1 ::
+  basics @ tap, testModule
+  top2 @ tap, testModule
+  weighted @ tap, testModule
+  sel_all @ tap, testModule
+  by_zone @ tap, testModule
+
+else ::
+  by_zone @ tap, testModule
 
 tap.finish()

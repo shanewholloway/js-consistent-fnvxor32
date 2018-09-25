@@ -1,0 +1,18 @@
+export default select_min
+export function select_min(h_tip, tip, sel) ::
+  if null === sel ::
+    return @[] h_tip, tip
+
+  return h_tip < sel[0] ? [h_tip, tip] :
+    h_tip !== sel[0] ? null :
+    tip < sel[1] ? [h_tip, tip] : null
+
+select_min.result = sel => null === sel ? sel : sel[1]
+
+export function as_sorted_selection(decorated_selection) ::
+  return (decorated_selection || [])
+    .sort @ (a, b) => (a[0] - b[0]) || (a[1] <= b[1] ? -1 : 1)
+
+export function as_selection_result(decorated_selection) ::
+  return (decorated_selection || [])
+    .map @ e => e[1]

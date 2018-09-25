@@ -1,11 +1,12 @@
+import { as_sorted_selection, as_selection_result } from './select_min.jsy'
+
 export default select_all
 export function select_all() ::
-  select_all.result = sel => (sel || [])
-    .sort @ (a, b) => (a[0] - b[0]) || (a[1] <= b[1] ? -1 : 1)
-    .map @ e => e[1]
+  select_all.finalize = as_sorted_selection
+  select_all.result = as_selection_result
   return select_all
 
-  function select_all(h_tip, tip, h_sel, sel) ::
+  function select_all(h_tip, tip, sel) ::
     if null === sel :: sel = []
 
     sel.push @# h_tip, tip

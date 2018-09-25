@@ -1,12 +1,4 @@
-export { select_top_n } from './select_top_n.jsy'
-export { select_all } from './select_all.jsy'
-
-function select_min(h_tip, tip, h_sel, sel) ::
-  return h_tip < h_sel ? tip :
-    h_tip !== h_sel ? null :
-    tip < sel ? tip : null
-
-
+import { select_min } from './select_min.jsy'
 
 export const fnvxor32 = create_fnvxor32({})
 export default fnvxor32
@@ -38,19 +30,21 @@ export function create_fnvxor32({depth, selector, cache}) ::
     const hk = 'string' === typeof key
       ? hash_fnv32(key) : key|0
 
-    let sel = null, h_sel = Infinity
+    let sel = null
     for const tip of iterable ::
       let h_tip = hk ^ c_fnv32(tip, cache)
       for let i=depth & 0xff; i>0; i-- ::
         // generate "depth" alternatives
-        h_tip = xor32(h_tip)
+        h_tip = xorshift32(h_tip)
 
         // use selector to find and keep the winner
-        const ans = selector(h_tip, tip, h_sel, sel)
+        const ans = selector(h_tip, tip, sel)
         if null !== ans ::
-          h_sel = h_tip
           sel = ans
 
+    if selector.finalize ::
+      // post-transform the result
+      sel = selector.finalize(sel)
     if selector.result ::
       // post-transform the result
       sel = selector.result(sel)
@@ -72,17 +66,16 @@ export function create_weighted_fnvxor32({selector, cache}) ::
     const hk = 'string' === typeof key
       ? hash_fnv32(key) : key|0
 
-    let sel = null, h_sel = Infinity
+    let sel = null
     for const [tip, depth] of iterable ::
       let h_tip = hk ^ c_fnv32(tip, cache)
       for let i=depth & 0xff; i>0; i-- ::
         // generate "depth" alternatives
-        h_tip = xor32(h_tip)
+        h_tip = xorshift32(h_tip)
 
         // use selector to find and keep the winner
-        const ans = selector(h_tip, tip, h_sel, sel)
+        const ans = selector(h_tip, tip, sel)
         if null !== ans ::
-          h_sel = h_tip
           sel = ans
 
     if selector.result ::
@@ -106,7 +99,7 @@ export function hash_fnv32(sz) ::
     h += (h << 24) + (h << 8) + (h << 7) + (h << 4) + (h << 1)
   return h
 
-export function xor32(h) ::
+export function xorshift32(h) ::
   // XOR Shift 32, from https://en.wikipedia.org/wiki/Xorshift
   // from Marsaglia, George (July 2003). "Xorshift RNGs". Journal of Statistical Software. 8 (14). doi:10.18637/jss.v008.i14.
   h ^= h << 13

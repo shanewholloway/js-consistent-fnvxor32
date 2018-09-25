@@ -1,0 +1,37 @@
+import { select_min, as_sorted_selection, as_selection_result } from './select_min.jsy'
+
+export default select_by_attr
+export function select_by_attr(attrFor, select) ::
+  if 'function' === typeof attrFor.exec ::
+    const rx = attrFor
+    attrFor = tip => tip.match(rx)
+  else if 'function' !== typeof attrFor ::
+    throw new TypeError @ 'Expected `attrFor` to be a RegExp or function'
+
+  if null == select ::
+    select = select_min
+
+  if select.finalize ::
+    select_by_attr.finalize = sel_map =>
+      as_sorted_selection @
+        sel_map ? Object.values(sel_map).map(select.finalize) : []
+
+  else ::
+    select_by_attr.finalize = sel_map =>
+      as_sorted_selection @
+        sel_map ? Object.values(sel_map) : []
+  
+  select_by_attr.result = as_selection_result
+  return select_by_attr
+
+  function select_by_attr(h_tip, tip, sel) ::
+    if null === sel :: sel = {}
+
+    const attr = attrFor(tip)
+    if null !== attr ::
+      const ans = select @ h_tip, tip, sel[attr] || null
+      if null !== ans ::
+        sel[attr] = ans
+
+    return sel
+
